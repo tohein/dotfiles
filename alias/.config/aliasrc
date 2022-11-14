@@ -1,0 +1,6 @@
+# aliases
+alias ll='ls -l'
+alias la='ls -la'
+alias columnt="column -ts $'\t'"
+alias vim='nvim'
+
