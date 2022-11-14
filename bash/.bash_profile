@@ -6,14 +6,7 @@ if [ -f ~/.bashrc ]; then
 fi
 
 # User specific environment and startup programs
-
-# adds all subdirs of $HOME/.local/bin to PATH
-# export PATH="$PATH:$(du "$HOME/.local/bin/" | cut -f2 | tr '\n' ':' | sed 's/:*$//')"
-
 export PATH=$PATH:$HOME/.local/bin:$HOME/bin
-
-export PATH="$HOME/centos/usr/sbin:$HOME/centos/usr/bin:$HOME/centos/bin:$PATH"
-export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$HOME/centos/usr/lib:$HOME/centos/usr/lib64"
 
 # vim settings
 export VIM_DIR=$HOME/neovim
