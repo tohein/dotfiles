@@ -1,32 +1,53 @@
+" ----------------------------------------------------------------------
 "
-" tobi's vim configuration
+"                       Tobi's vim configuration
 "
+" ----------------------------------------------------------------------
 
-" ----- plug-ins -----
 
-if empty(glob('~/.local/share/nvim/site/autoload/plug.vim'))
-    silent !curl -fLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs
-        \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+" ------------------------------ plug-ins ------------------------------
+
+let data_dir = has('nvim') ? stdpath('data') . '/site' : '~/.vim'
+if empty(glob(data_dir . '/autoload/plug.vim'))
+    silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
     autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
 call plug#begin()
-Plug 'PotatoesMaster/i3-vim-syntax'	    " syntax highlighting for i3 config
-Plug 'morhetz/gruvbox'                  " gruvbox color scheme
-Plug 'scrooloose/nerdtree'		        " file browser
-Plug 'Xuyuanp/nerdtree-git-plugin'	    " nerdtree git integration
-Plug 'airblade/vim-gitgutter'	     	" show changes in gutter
-Plug 'tpope/vim-commentary'       		" commenting feature
-Plug 'vim-airline/vim-airline'    		" statusbar
-Plug 'tpope/vim-fugitive'               " vim git wrapper
+" color scheme
+Plug 'morhetz/gruvbox'
+Plug 'nvim-lua/plenary.nvim'                    " lua functions
+Plug 'nvim-tree/nvim-tree.lua'                  " file tree
+Plug 'lukas-reineke/indent-blankline.nvim'      " indentation lines
+Plug 'tpope/vim-commentary'       		        " commenting feature
+" statusline
+Plug 'nvim-lualine/lualine.nvim'                " fast statusline
+Plug 'kyazdani42/nvim-web-devicons'             " icons for statusline
+" git
+Plug 'tpope/vim-fugitive'                       " vim git wrapper
+" Plug 'sindrets/diffview.nvim'                   " view diff gits
+Plug 'airblade/vim-gitgutter'	     	        " git diff in gutter
+" telescope fuzzy search
+Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.0' }
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 call plug#end()
 
-" ----- settings -----
+" ------------------------------ settings ------------------------------
 
+" filetype detection to set syntax highlightning, indenting etc
 filetype plugin indent on
+
 set nocompatible
 set encoding=utf-8
-set number relativenumber		        " show relative numbers for all but current line
+
+" use relative line numbers
+set number relativenumber
+
+" find files using Telescope command-line sugar.
+nnoremap <leader>ff <cmd>Telescope find_files<cr>
+nnoremap <leader>fg <cmd>Telescope live_grep<cr>
+nnoremap <leader>fb <cmd>Telescope buffers<cr>
+nnoremap <leader>fh <cmd>Telescope help_tags<cr>
 
 " delete trailing whitespaces on save
 autocmd BufWritePre * %s/\s\+$//e
@@ -34,37 +55,29 @@ autocmd BufWritePre * %s/\s\+$//e
 " disable comment on newline
 autocmd FileType * setlocal formatoptions-=cro
 
-" cmd completion
-set wildmenu				            " enable wildmenu
-set wildmode=longest,list,full	        " completion mode for wildmenu
+" command line completion
+set wildmenu
+set wildmode=longest:full,full
 
-" colors scheme & highlighting
+" syntax highlightning
 syntax enable
-set background=dark
-colorscheme gruvbox
-
-let g:airline_powerline_fonts = 1       " powerline shine
-
-"set cursorcolumn			            " highlight cursor to detect indentation
-"set cursorline
-set colorcolumn=80			            " highlight 80 character line
 
 " vim syntax highlighting for snakemake files
 au BufNewFile,BufRead Snakefile set syntax=snakemake
 au BufNewFile,BufRead *.smk set syntax=snakemake
 
+" colorscheme
+let g:gruvbox_contrast_dark='hard'
+colorscheme gruvbox
+
+" highlight 80 char line
+set colorcolumn=80
+
 " tabs to spaces
-set tabstop     =4
-set softtabstop =4
-set shiftwidth  =4
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4
 set expandtab
-
-" open nerdtree on startup if no file specified
-autocmd StdinReadPre * let s:std_in=1
-autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
-
-" run xrdb whenever Xdefaults or Xresources are updated.
-autocmd BufWritePost *Xresources,*Xdefaults !xrdb %
 
 " vim / tmux split navigation
 if exists('$TMUX')
@@ -92,3 +105,9 @@ else
     map <C-l> <C-w>l
 endif
 
+lua << END
+require('lualine').setup()
+require("nvim-tree").setup {
+    open_on_setup = true
+}
+END
