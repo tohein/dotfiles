@@ -11,6 +11,9 @@ HISTSIZE=10000
 SAVEHIST=10000
 HISTFILE=~/.zsh_history
 
+# set default editor
+EDITOR=nvim
+
 # Rename
 autoload -Uz zmv
 

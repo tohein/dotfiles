@@ -2,5 +2,8 @@
 alias ll='ls -l'
 alias la='ls -la'
 alias columnt="column -ts $'\t'"
-alias vim='nvim'
+if [ "$EDITOR" == 'nvim' ]
+then
+    alias vim='nvim'
+fi
 
