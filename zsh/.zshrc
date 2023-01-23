@@ -12,7 +12,22 @@ SAVEHIST=10000
 HISTFILE=~/.zsh_history
 
 # set default editor
-EDITOR=nvim
+# vim settings
+if ! command -v nvim &> /dev/null
+then
+    if test -f "$HOME/neovim/bin/nvim"
+    then
+        export VIM_DIR=$HOME/neovim
+        export VIM=$VIM_DIR/bin/nvim
+        export VIMRUNTIME=$VIM_DIR/runtime
+        export PATH=$VIM_DIR/bin:$PATH
+        export EDITOR=nvim
+    else
+        EDITOR=vim
+    fi
+else
+    EDITOR=nvim
+fi
 
 # Rename
 autoload -Uz zmv
