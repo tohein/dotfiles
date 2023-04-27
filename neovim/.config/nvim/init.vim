@@ -1,11 +1,11 @@
-" ----------------------------------------------------------------------
+" -----------------------------------------------------------------------------
 "
 "                       Tobi's vim configuration
 "
-" ----------------------------------------------------------------------
+" -----------------------------------------------------------------------------
 
 
-" ------------------------------ plug-ins ------------------------------
+" ------------------------------ plug-ins -------------------------------------
 
 let data_dir = has('nvim') ? stdpath('data') . '/site' : '~/.vim'
 if empty(glob(data_dir . '/autoload/plug.vim'))
@@ -14,30 +14,54 @@ if empty(glob(data_dir . '/autoload/plug.vim'))
 endif
 
 call plug#begin()
+
+" LSP
+Plug 'neovim/nvim-lspconfig'
+
+" Treesitter
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+
+" telescope fuzzy search
+Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.1' }
+
+" indentation lines
+Plug 'lukas-reineke/indent-blankline.nvim'
+
+" comments
+Plug 'tpope/vim-commentary'
+
 " color scheme
 Plug 'rebelot/kanagawa.nvim'
-Plug 'lukas-reineke/indent-blankline.nvim'      " indentation lines
-Plug 'tpope/vim-commentary'       		        " commenting feature
-" git
+
+" git support
 Plug 'tpope/vim-fugitive'                       " vim git wrapper
-" Plug 'sindrets/diffview.nvim'                   " view diff gits
 Plug 'airblade/vim-gitgutter'	     	        " git diff in gutter
-Plug 'nvim-tree/nvim-tree.lua'                  " file tree
-Plug 'nvim-lua/plenary.nvim'                    " lua functions
-Plug 'nvim-lualine/lualine.nvim'                " fast statusline
-Plug 'kyazdani42/nvim-web-devicons'             " icons for statusline
-" telescope fuzzy search
-Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.0' }
-Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+
+" file tree
+Plug 'nvim-tree/nvim-tree.lua'
+
+" statusline
+Plug 'nvim-lualine/lualine.nvim'
+
+" icons for lualine and nvim-tree
+Plug 'kyazdani42/nvim-web-devicons'
+
+" " co-pilot
+" Plug 'github/copilot.vim'
+
 call plug#end()
 
-" ------------------------------ settings ------------------------------
+" ------------------------------ settings -------------------------------------
 
-" filetype detection to set syntax highlightning, indenting etc
 filetype plugin indent on
-
-set nocompatible
 set encoding=utf-8
+
+" tabs to spaces
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4
+set expandtab
 
 " use relative line numbers
 set number relativenumber
@@ -49,30 +73,23 @@ autocmd BufWritePre * %s/\s\+$//e
 autocmd FileType * setlocal formatoptions-=cro
 
 " command line completion
-set wildmenu
+" set wildmenu
 set wildmode=longest:full,full
-
-" syntax highlightning
-syntax enable
 
 " vim syntax highlighting for snakemake files
 au BufNewFile,BufRead Snakefile set syntax=snakemake
 au BufNewFile,BufRead *.smk set syntax=snakemake
 
-" colorscheme
-set termguicolors
-colorscheme kanagawa
+" set true colors
+if has("termguicolors")
+    set termguicolors
+endif
 
 " highlight 80 char line
 set colorcolumn=80
 
-" tabs to spaces
-set tabstop=4
-set softtabstop=4
-set shiftwidth=4
-set expandtab
+" ------------------------- vim / tmux split navigation------------------------
 
-" vim / tmux split navigation
 if exists('$TMUX')
     function! TmuxOrSplitSwitch(wincmd, tmuxdir)
         let previous_winnr = winnr()
@@ -98,6 +115,9 @@ else
     map <C-l> <C-w>l
 endif
 
+" ------------------------------- keymaps -------------------------------------
+
+" show file tree
 nnoremap <leader>ft <cmd>NvimTreeToggle<cr>
 
 " find files using Telescope command-line sugar.
@@ -106,14 +126,98 @@ nnoremap <leader>fg <cmd>Telescope live_grep<cr>
 nnoremap <leader>fb <cmd>Telescope buffers<cr>
 nnoremap <leader>fh <cmd>Telescope help_tags<cr>
 
-lua << END
-require('lualine').setup()
-require("nvim-tree").setup {
-    open_on_setup = true
-}
-require('nvim-treesitter.configs').setup {
-  -- one of "all", "maintained" (parsers with maintainers),
-  -- or a list of languages
-  ensure_installed = { "python" }
-}
-END
+" ----------------------------------- lua -------------------------------------
+
+:lua << EOF
+    -- Setup language servers.
+    local lspconfig = require('lspconfig')
+    lspconfig.pyright.setup {}
+
+    -- Global mappings.
+    -- See `:help vim.diagnostic.*` for documentation on any of the below functions
+    vim.keymap.set('n', '<space>e', vim.diagnostic.open_float)
+    vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)
+    vim.keymap.set('n', ']d', vim.diagnostic.goto_next)
+    vim.keymap.set('n', '<space>q', vim.diagnostic.setloclist)
+
+    -- Use LspAttach autocommand to only map the following keys
+    -- after the language server attaches to the current buffer
+    vim.api.nvim_create_autocmd('LspAttach', {
+      group = vim.api.nvim_create_augroup('UserLspConfig', {}),
+      callback = function(ev)
+        -- Buffer local mappings.
+        -- See `:help vim.lsp.*` for documentation on any of the below functions
+        local opts = { buffer = ev.buf }
+        vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
+        vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+        vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
+        vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
+        vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
+        vim.keymap.set('n', '<space>wa', vim.lsp.buf.add_workspace_folder, opts)
+        vim.keymap.set('n', '<space>wr', vim.lsp.buf.remove_workspace_folder, opts)
+        vim.keymap.set('n', '<space>wl', function()
+          print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+        end, opts)
+        vim.keymap.set('n', '<space>D', vim.lsp.buf.type_definition, opts)
+        vim.keymap.set('n', '<space>rn', vim.lsp.buf.rename, opts)
+        vim.keymap.set({ 'n', 'v' }, '<space>ca', vim.lsp.buf.code_action, opts)
+        vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
+        vim.keymap.set('n', '<space>f', function()
+          vim.lsp.buf.format { async = true }
+        end, opts)
+      end,
+    })
+
+    require('nvim-treesitter.configs').setup {
+      ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "python" },
+
+        -- Install parsers synchronously (only applied to `ensure_installed`)
+      sync_install = false,
+
+      -- Automatically install missing parsers when entering buffer
+      -- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
+      auto_install = true,
+
+      highlight = {
+      enable = true,
+      },
+    }
+
+    -- Setup status line
+    require("lualine").setup()
+
+    -- Setup file tree
+    vim.g.loaded_netrw = 1
+    vim.g.loaded_netrwPlugin = 1
+    require("nvim-tree").setup({
+        git = {
+            ignore = false
+        },
+        renderer = {
+          group_empty = true,
+        }
+    })
+
+    -- Setup telescope
+    require("telescope").setup()
+
+    -- Setup indentation highlights
+    require("indent_blankline").setup()
+
+    -- Customize theme
+    require('kanagawa').setup({
+        colors = {
+            theme = {
+                all = {
+                    ui = {
+                        bg_gutter = "none"
+                    }
+                }
+            }
+        }
+    })
+    vim.cmd("colorscheme kanagawa")
+
+EOF
+
+
