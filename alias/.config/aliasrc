@@ -1,6 +1,6 @@
 # aliases
-alias ll='ls -l'
-alias la='ls -la'
+alias ll='ls -l --color=auto'
+alias la='ls -la --color=auto'
 alias columnt="column -ts $'\t'"
 if [[ "$EDITOR" == 'nvim' ]]
 then
