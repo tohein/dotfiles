@@ -1,11 +1,12 @@
 " -----------------------------------------------------------------------------
 "
-"                       Tobi's vim configuration
+"                       Tobi's neovim configuration.
 "
 " -----------------------------------------------------------------------------
 
-
-" ------------------------------ plug-ins -------------------------------------
+" -----------------------------------------------------------------------------
+" Plugin manager.
+" -----------------------------------------------------------------------------
 
 let data_dir = has('nvim') ? stdpath('data') . '/site' : '~/.vim'
 if empty(glob(data_dir . '/autoload/plug.vim'))
@@ -13,82 +14,87 @@ if empty(glob(data_dir . '/autoload/plug.vim'))
     autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
-call plug#begin()
+ call plug#begin()
 
-" LSP
+" LSP.
 Plug 'neovim/nvim-lspconfig'
-
-" Treesitter
+" Treesitter.
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-
-" telescope fuzzy search
+" Telescope fuzzy search.
 Plug 'nvim-lua/plenary.nvim'
-Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.1' }
-
-" indentation lines
+Plug 'nvim-telescope/telescope.nvim' , { 'tag': '0.1.4' }
+" Code completion.
+Plug 'hrsh7th/cmp-nvim-lsp'
+Plug 'hrsh7th/cmp-buffer'
+Plug 'hrsh7th/cmp-path'
+Plug 'hrsh7th/cmp-cmdline'
+Plug 'hrsh7th/nvim-cmp'
+" Snippets.
+Plug 'hrsh7th/cmp-vsnip'
+Plug 'hrsh7th/vim-vsnip'
+" Indentation lines.
 Plug 'lukas-reineke/indent-blankline.nvim'
-
-" comments
+" Comments.
 Plug 'tpope/vim-commentary'
-
-" color scheme
-Plug 'rebelot/kanagawa.nvim'
-
-" git support
-Plug 'tpope/vim-fugitive'                       " vim git wrapper
-Plug 'airblade/vim-gitgutter'	     	        " git diff in gutter
-
-" file tree
+" Git support.
+Plug 'tpope/vim-fugitive'                       " Vim git wrapper.
+Plug 'airblade/vim-gitgutter'	     	        " Git diff in gutter.
+" File tree.
 Plug 'nvim-tree/nvim-tree.lua'
-
-" statusline
+" Color scheme.
+Plug 'projekt0n/github-nvim-theme'
+" Statusline.
 Plug 'nvim-lualine/lualine.nvim'
-
-" icons for lualine and nvim-tree
+" Icons for lualine and nvim-tree.
 Plug 'kyazdani42/nvim-web-devicons'
-
-" " co-pilot
-" Plug 'github/copilot.vim'
+" Co-pilot.
+Plug 'github/copilot.vim'
 
 call plug#end()
 
-" ------------------------------ settings -------------------------------------
+" -----------------------------------------------------------------------------
+" General settings.
+" -----------------------------------------------------------------------------
 
 filetype plugin indent on
 set encoding=utf-8
 
-" tabs to spaces
+" Tabs to spaces.
 set tabstop=4
 set softtabstop=4
 set shiftwidth=4
 set expandtab
 
-" use relative line numbers
+" Use relative line numbers.
 set number relativenumber
 
-" delete trailing whitespaces on save
+" Delete trailing whitespaces on save.
 autocmd BufWritePre * %s/\s\+$//e
 
-" disable comment on newline
+" Disable comment on newline.
 autocmd FileType * setlocal formatoptions-=cro
 
-" command line completion
-" set wildmenu
+" Command line completion.
 set wildmode=longest:full,full
 
-" vim syntax highlighting for snakemake files
+" Vim syntax highlighting for snakemake files.
 au BufNewFile,BufRead Snakefile set syntax=snakemake
 au BufNewFile,BufRead *.smk set syntax=snakemake
 
-" set true colors
+" Set true colors if available.
 if has("termguicolors")
     set termguicolors
 endif
 
-" highlight 80 char line
+" Highlight 80 character line.
 set colorcolumn=80
 
-" ------------------------- vim / tmux split navigation------------------------
+" Always use system clipboard.
+set clipboard=unnamedplus
+
+" -----------------------------------------------------------------------------
+" Mappings.
+" -----------------------------------------------------------------------------
 
 if exists('$TMUX')
     function! TmuxOrSplitSwitch(wincmd, tmuxdir)
@@ -115,38 +121,65 @@ else
     map <C-l> <C-w>l
 endif
 
-" ------------------------------- keymaps -------------------------------------
 
-" show file tree
+" Show file tree.
 nnoremap <leader>ft <cmd>NvimTreeToggle<cr>
 
-" find files using Telescope command-line sugar.
+" Find files using Telescope command-line sugar.
 nnoremap <leader>ff <cmd>Telescope find_files<cr>
 nnoremap <leader>fg <cmd>Telescope live_grep<cr>
 nnoremap <leader>fb <cmd>Telescope buffers<cr>
 nnoremap <leader>fh <cmd>Telescope help_tags<cr>
 
-" ----------------------------------- lua -------------------------------------
+" -----------------------------------------------------------------------------
+" Plugin settings.
+" -----------------------------------------------------------------------------
 
 :lua << EOF
+    -- Setup nvim-cmp.
+      local cmp = require'cmp'
+
+      cmp.setup({
+        snippet = {
+          expand = function(args)
+            vim.fn["vsnip#anonymous"](args.body)
+          end,
+        },
+        window = {
+          -- completion = cmp.config.window.bordered(),
+          -- documentation = cmp.config.window.bordered(),
+        },
+        mapping = cmp.mapping.preset.insert({
+          ['<C-b>'] = cmp.mapping.scroll_docs(-4),
+          ['<C-f>'] = cmp.mapping.scroll_docs(4),
+          ['<C-Space>'] = cmp.mapping.complete(),
+          ['<C-e>'] = cmp.mapping.abort(),
+          ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+        }),
+        sources = cmp.config.sources({
+          { name = 'nvim_lsp' },
+          { name = 'vsnip' },
+        }, {
+          { name = 'buffer' },
+        })
+      })
+
     -- Setup language servers.
     local lspconfig = require('lspconfig')
     lspconfig.pyright.setup {}
 
-    -- Global mappings.
-    -- See `:help vim.diagnostic.*` for documentation on any of the below functions
+    -- Global mappings (see `:help vim.diagnostic.*`).
     vim.keymap.set('n', '<space>e', vim.diagnostic.open_float)
     vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)
     vim.keymap.set('n', ']d', vim.diagnostic.goto_next)
     vim.keymap.set('n', '<space>q', vim.diagnostic.setloclist)
 
-    -- Use LspAttach autocommand to only map the following keys
-    -- after the language server attaches to the current buffer
+    -- Use LspAttach autocommand to only map the following keys after the
+    -- language server attaches to the current buffer.
     vim.api.nvim_create_autocmd('LspAttach', {
       group = vim.api.nvim_create_augroup('UserLspConfig', {}),
       callback = function(ev)
-        -- Buffer local mappings.
-        -- See `:help vim.lsp.*` for documentation on any of the below functions
+        -- Buffer local mappings (see `:help vim.lsp.*`).
         local opts = { buffer = ev.buf }
         vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
         vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
@@ -171,11 +204,11 @@ nnoremap <leader>fh <cmd>Telescope help_tags<cr>
     require('nvim-treesitter.configs').setup {
       ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "python" },
 
-        -- Install parsers synchronously (only applied to `ensure_installed`)
+        -- Install parsers synchronously (only applied to `ensure_installed`).
       sync_install = false,
 
-      -- Automatically install missing parsers when entering buffer
-      -- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
+      -- Automatically install missing parsers when entering buffer. Set to
+      -- `false` if `tree-sitter` CLI is not installed locally.
       auto_install = true,
 
       highlight = {
@@ -183,10 +216,10 @@ nnoremap <leader>fh <cmd>Telescope help_tags<cr>
       },
     }
 
-    -- Setup status line
+    -- Setup status line.
     require("lualine").setup()
 
-    -- Setup file tree
+    -- Setup file tree.
     vim.g.loaded_netrw = 1
     vim.g.loaded_netrwPlugin = 1
     require("nvim-tree").setup({
@@ -198,26 +231,14 @@ nnoremap <leader>fh <cmd>Telescope help_tags<cr>
         }
     })
 
-    -- Setup telescope
+    -- Setup telescope.
     require("telescope").setup()
 
-    -- Setup indentation highlights
-    require("indent_blankline").setup()
+    -- Setup indentation highlights.
+    require("ibl").setup()
 
-    -- Customize theme
-    require('kanagawa').setup({
-        colors = {
-            theme = {
-                all = {
-                    ui = {
-                        bg_gutter = "none"
-                    }
-                }
-            }
-        }
-    })
-    vim.cmd("colorscheme kanagawa")
-
+    -- Customize theme.
+    vim.cmd("colorscheme github_dark_high_contrast")
 EOF
 
 
