@@ -1,15 +1,42 @@
-# Tobi's Zsh configuration.
+#!/usr/bin/env zsh
+# ----------------------- Tobi's Zsh configuration ----------------------------
+#
+# Additional options to consider:
+# - Zsh directory stack (pushd, popd, dirs).
 
 # -----------------------------------------------------------------------------
-# Default editor.
+# Default editor (based on availability).
+#
+# NOTE: The editor is set here rather than in .zshenv, as the $PATH variable
+# may not be fully populated when .zshenv is read. For example, Homebrew relies
+# on .zprofile to set the $PATH, which is read after .zshenv.
 # -----------------------------------------------------------------------------
 
-# Sets default editor based on availability
 if command -v nvim >/dev/null 2>&1; then
   export EDITOR="nvim"
 elif command -v vim >/dev/null 2>&1; then
   export EDITOR="vim"
 fi
+
+# -----------------------------------------------------------------------------
+# Navigation.
+# -----------------------------------------------------------------------------
+
+setopt CORRECT              # Corrects spelling errors in commands.
+
+# -----------------------------------------------------------------------------
+# History.
+# -----------------------------------------------------------------------------
+
+setopt SHARE_HISTORY        # Shares history between all sessions.
+setopt HIST_IGNORE_DUPS     # Ignores repeated commands.
+
+# -----------------------------------------------------------------------------
+# Aliases and shortcuts.
+# -----------------------------------------------------------------------------
+
+[ -r "$HOME/.config/shortcutrc" ] && source "$HOME/.config/shortcutrc"
+[ -r "$HOME/.config/aliasrc" ] && source "$HOME/.config/aliasrc"
 
 # -----------------------------------------------------------------------------
 # Prompt.
@@ -22,82 +49,66 @@ precmd() { vcs_info }
 # Sets format for git information.
 zstyle ':vcs_info:git:*' formats '%b '
 
-setopt PROMPT_SUBST
-PROMPT='[%F{yellow}%n%f@%F{blue}%M%f %F{magenta}%~%f] %F{red}${vcs_info_msg_0_}%f%F{cyan}%T%F{green}%f $ '
+setopt PROMPT_SUBST         # Allows command substitution in prompt.
+PROMPT='%F{blue}%~%f %F{red}${vcs_info_msg_0_}%f%F{magenta}>%f '
+RPROMPT='%F{blue}%D{%a %b %d}%f %F{green}%D{%I:%M:%S %p}%f'
 
 # -----------------------------------------------------------------------------
-# History.
+# Auto / tab complete.
 # -----------------------------------------------------------------------------
 
-HISTSIZE=10000
-SAVEHIST=10000
-HISTFILE=~/.zsh_history
-
-# -----------------------------------------------------------------------------
-# Auto/tab complete.
-# -----------------------------------------------------------------------------
-
-# Loads function for basic auto/tab complete:
-autoload -U compinit
-# Advanced completion features (e.g., highlighting).
+# Advanced completion features (e.g., highlighting, menuselect, ...).
+# Should be loaded before compinit.
 zmodload zsh/complist
-# Use menu select for all completions.
-zstyle ':completion:*' menu select
-compinit
-# Allows patterns such as * to match hidden files.
-_comp_options+=(globdots)
-
 # Enables vi keys to select completions.
 bindkey -M menuselect 'h' vi-backward-char
 bindkey -M menuselect 'k' vi-up-line-or-history
 bindkey -M menuselect 'l' vi-forward-char
 bindkey -M menuselect 'j' vi-down-line-or-history
+# Loads function for basic auto/tab complete:
+autoload -U compinit; compinit
+# Allows patterns such as * to match hidden files.
+_comp_options+=(globdots)
+# Uses menu select for all completions.
+zstyle ':completion:*' menu select
 
 # -----------------------------------------------------------------------------
 # Vi mode / command line editing.
 # -----------------------------------------------------------------------------
 
-# Sets delay (tenths of a second) Zsh waits to distinguish multi-key sequences.
-export KEYTIMEOUT=1
 # Enables vi keybindings in Zsh.
 bindkey -v
 # Allows using backspace to delete characters in insert mode.
 bindkey -v '^?' backward-delete-char
 
-# Sets beam shape cursor on startup.
-zle-line-init() {
-  echo -ne "\e[5 q"
+function set_cursor() {
+  # Sets cursor shape.
+  cursor_beam='\e[6 q'
+  cursor_block='\e[2 q'
+
+  # Sets beam shape cursor on startup.
+  zle-line-init() {
+    echo -ne $cursor_beam
+  }
+
+  # Sets cursor shape based on vi mode.
+  zle-keymap-select() {
+    if [[ ${KEYMAP} == vicmd ]]; then
+      echo -ne $cursor_block  # Block cursor for normal mode.
+    else
+      echo -ne $cursor_beam   # Beam cursor for insert mode.
+    fi
+  }
+
+  zle -N zle-line-init
+  zle -N zle-keymap-select
 }
-zle -N zle-line-init
-# Changes cursor shape for different vi modes.
-function zle-cursor-select {
-  if [[ ${KEYMAP} == vicmd ]]; then
-    echo -ne '\e[1 q'  # Block cursor for command mode.
-  else
-    echo -ne '\e[5 q'  # Beam cursor for insert mode.
-  fi
-}
-zle -N zle-cursor-select
+set_cursor
 
 # Enables line editing in vim using 'Ctrl-e'.
-autoload -U edit-command-line
+autoload -Uz edit-command-line
 zle -N edit-command-line
-bindkey '^e' edit-command-line
-
-# -----------------------------------------------------------------------------
-# Aliases and shortcuts.
-# -----------------------------------------------------------------------------
-
-# Loads aliases and shortcuts.
-[ -f "$HOME/.config/shortcutrc" ] && source "$HOME/.config/shortcutrc"
-[ -f "$HOME/.config/aliasrc" ] && source "$HOME/.config/aliasrc"
-
-# -----------------------------------------------------------------------------
-# User binaries.
-# -----------------------------------------------------------------------------
-
-# Adds user binaries to path.
-export PATH="$HOME/bin:$PATH"
+bindkey -M viins '^e' edit-command-line
 
 # -----------------------------------------------------------------------------
 # Pyenv.
