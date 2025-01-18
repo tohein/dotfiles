@@ -42,7 +42,7 @@ Plug 'airblade/vim-gitgutter'	     	        " Git diff in gutter.
 " File tree.
 Plug 'nvim-tree/nvim-tree.lua'
 " Color scheme.
-Plug 'projekt0n/github-nvim-theme'
+Plug 'EdenEast/nightfox.nvim'
 " Statusline.
 Plug 'nvim-lualine/lualine.nvim'
 " Icons for lualine and nvim-tree.
@@ -238,7 +238,7 @@ nnoremap <leader>fh <cmd>Telescope help_tags<cr>
     require("ibl").setup()
 
     -- Customize theme.
-    vim.cmd("colorscheme github_dark_high_contrast")
+    vim.cmd("colorscheme carbonfox")
 EOF
 
 

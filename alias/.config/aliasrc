@@ -1,7 +1,14 @@
-# aliases
-alias ll='ls -l --color=auto'
-alias la='ls -la --color=auto'
-alias columnt="column -ts $'\t'"
+## Colorize the ls output ##
+alias ls='ls --color=auto'
+
+## Use a long listing format ##
+alias ll='ls -l'
+alias la='ll -a'
+
+## Show hidden files ##
+alias l.='ls -d .*'
+
+## Use neovim if available ##
 if [[ "$EDITOR" == 'nvim' ]]
 then
     alias vim='nvim'
