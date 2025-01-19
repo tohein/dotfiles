@@ -54,7 +54,7 @@ PROMPT='%F{blue}%~%f %F{red}${vcs_info_msg_0_}%f%F{magenta}>%f '
 RPROMPT='%F{blue}%D{%a %b %d}%f %F{green}%D{%I:%M:%S %p}%f'
 
 # -----------------------------------------------------------------------------
-# Auto / tab complete.
+# Completion.
 # -----------------------------------------------------------------------------
 
 # Advanced completion features (e.g., highlighting, menuselect, ...).
