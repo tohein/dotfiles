@@ -80,7 +80,8 @@ colorscheme gruvbox
 set colorcolumn=88
 
 " Always use system clipboard.
-set clipboard=unnamedplus
+set clipboard^=unnamed,unnamedplus
+
 
 " -----------------------------------------------------------------------------
 " Mappings.
