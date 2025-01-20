@@ -1,11 +1,12 @@
-" ----------------------------------------------------------------------
+" -----------------------------------------------------------------------------
 "
-"                       Tobi's vim configuration
+"                       Tobi's neovim configuration.
 "
-" ----------------------------------------------------------------------
+" -----------------------------------------------------------------------------
 
-
-" ------------------------------ plug-ins ------------------------------
+" -----------------------------------------------------------------------------
+" Plugin manager.
+" -----------------------------------------------------------------------------
 
 let data_dir = has('nvim') ? stdpath('data') . '/site' : '~/.vim'
 if empty(glob(data_dir . '/autoload/plug.vim'))
@@ -14,67 +15,77 @@ if empty(glob(data_dir . '/autoload/plug.vim'))
     endif
 
 call plug#begin()
-" color scheme
+
+" Color scheme.
 Plug 'morhetz/gruvbox'
 Plug 'tpope/vim-commentary'       		        " commenting feature
-" git
-Plug 'tpope/vim-fugitive'                       " vim git wrapper
-Plug 'airblade/vim-gitgutter'	     	        " git diff in gutter
-" statusbar
+" Git support.
+Plug 'tpope/vim-fugitive'                       " Vim git wrapper.
+Plug 'airblade/vim-gitgutter'	     	        " Git diff in gutter.
+" Statusbar.
 Plug 'vim-airline/vim-airline'
-" file tree
+" File tree.
 Plug 'scrooloose/nerdtree'
+
 call plug#end()
 
-" ------------------------------ settings ------------------------------
+" -----------------------------------------------------------------------------
+" General settings.
+" -----------------------------------------------------------------------------
 
-" filetype detection to set syntax highlightning, indenting etc
+" Filetype detection to set syntax highlightning, indenting etc.
 filetype plugin indent on
 
 set nocompatible
 set encoding=utf-8
 
-" cursor settings
-let &t_ti.="\e[1 q"
-let &t_SI.="\e[5 q"
-let &t_EI.="\e[1 q"
-let &t_te.="\e[0 q"
-
-" use relative line numbers
-set number relativenumber
-
-" delete trailing whitespaces on save
-autocmd BufWritePre * %s/\s\+$//e
-
-" disable comment on newline
-autocmd FileType * setlocal formatoptions-=cro
-
-" command line completion
-set wildmenu
-set wildmode=longest:full,full
-
-" syntax highlightning
-syntax enable
-
-" vim syntax highlighting for snakemake files
-au BufNewFile,BufRead Snakefile set syntax=snakemake
-au BufNewFile,BufRead *.smk set syntax=snakemake
-
-" colorscheme
-set background=dark
-let g:gruvbox_contrast_dark='hard'
-colorscheme gruvbox
-
-" highlight 80 char line
-set colorcolumn=80
-
-" tabs to spaces
+" Tabs to spaces.
 set tabstop=4
 set softtabstop=4
 set shiftwidth=4
 set expandtab
 
-" vim / tmux split navigation
+" Cursor settings.
+let &t_ti.="\e[1 q"
+let &t_SI.="\e[5 q"
+let &t_EI.="\e[1 q"
+let &t_te.="\e[0 q"
+
+" Use relative line numbers.
+set number relativenumber
+
+" Delete trailing whitespaces on save.
+autocmd BufWritePre * %s/\s\+$//e
+
+" Disable comment on newline.
+autocmd FileType * setlocal formatoptions-=cro
+
+" Command line completion.
+set wildmenu
+set wildmode=longest:full,full
+
+" Syntax highlightning.
+syntax enable
+
+" Vim syntax highlighting for snakemake files.
+au BufNewFile,BufRead Snakefile set syntax=snakemake
+au BufNewFile,BufRead *.smk set syntax=snakemake
+
+" Colorscheme.
+set background=dark
+let g:gruvbox_contrast_dark='hard'
+colorscheme gruvbox
+
+" Highlight 88 char line.
+set colorcolumn=88
+
+" Always use system clipboard.
+set clipboard=unnamedplus
+
+" -----------------------------------------------------------------------------
+" Mappings.
+" -----------------------------------------------------------------------------
+
 if exists('$TMUX')
     function! TmuxOrSplitSwitch(wincmd, tmuxdir)
         let previous_winnr = winnr()
@@ -100,7 +111,8 @@ else
     map <C-l> <C-w>l
 endif
 
-nnoremap <leader>ft <cmd>NvimTreeToggle<cr>
+nnoremap <leader>ft <cmd>NERDTreeToggle<cr>
+
 
 " powerline shine
 let g:airline_powerline_fonts = 1
