@@ -86,8 +86,8 @@ if has("termguicolors")
     set termguicolors
 endif
 
-" Highlight 80 character line.
-set colorcolumn=80
+" Highlight 88 character line.
+set colorcolumn=88
 
 " Always use system clipboard.
 set clipboard=unnamedplus

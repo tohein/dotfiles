@@ -32,11 +32,12 @@ setopt SHARE_HISTORY        # Shares history between all sessions.
 setopt HIST_IGNORE_DUPS     # Ignores repeated commands.
 
 # -----------------------------------------------------------------------------
-# Aliases and shortcuts.
+# Aliases, shortcuts and environment variables.
 # -----------------------------------------------------------------------------
 
 [ -r "$HOME/.config/shortcutrc" ] && source "$HOME/.config/shortcutrc"
 [ -r "$HOME/.config/aliasrc" ] && source "$HOME/.config/aliasrc"
+[ -r "$HOME/.ec2_envvars" ] && source "$HOME/.ec2_envvars"
 
 # -----------------------------------------------------------------------------
 # Prompt.

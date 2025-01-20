@@ -1,27 +1,22 @@
-# .bash_profile
+#!/usr/bin/env bash
 
-# User specific environment and startup programs
+# -----------------------------------------------------------------------------
+# User specific environment and startup programs.
+# -----------------------------------------------------------------------------
 export PATH=$PATH:$HOME/.local/bin:$HOME/bin
 
-# vim settings
-if ! command -v nvim &> /dev/null
-then
-    if test -f "$HOME/neovim/bin/nvim"
-    then
-        export VIM_DIR=$HOME/neovim
-        export VIM=$VIM_DIR/bin/nvim
-        export VIMRUNTIME=$VIM_DIR/runtime
-        export PATH=$VIM_DIR/bin:$PATH
-        export EDITOR=nvim
-    else
-        EDITOR=vim
-    fi
-else
-    EDITOR=nvim
+# -----------------------------------------------------------------------------
+# Default editor (based on availability).
+# -----------------------------------------------------------------------------
+
+if command -v nvim >/dev/null 2>&1; then
+  export EDITOR="nvim"
+elif command -v vim >/dev/null 2>&1; then
+  export EDITOR="vim"
 fi
 
-# Get the aliases and functions
-if [ -f ~/.bashrc ]; then
-	. ~/.bashrc
-fi
+# -----------------------------------------------------------------------------
+# Get the aliases and functions.
+# -----------------------------------------------------------------------------
+[ -r ~/.bashrc ] && . ~/.bashrc
 
