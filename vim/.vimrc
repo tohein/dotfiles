@@ -1,6 +1,6 @@
 " -----------------------------------------------------------------------------
 "
-"                       Tobi's neovim configuration.
+"                          Tobi's vim configuration.
 "
 " -----------------------------------------------------------------------------
 
@@ -18,7 +18,7 @@ call plug#begin()
 
 " Color scheme.
 Plug 'morhetz/gruvbox'
-Plug 'tpope/vim-commentary'       		        " commenting feature
+Plug 'tpope/vim-commentary'       		        " Commenting feature.
 " Git support.
 Plug 'tpope/vim-fugitive'                       " Vim git wrapper.
 Plug 'airblade/vim-gitgutter'	     	        " Git diff in gutter.
