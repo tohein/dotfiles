@@ -56,7 +56,6 @@ call plug#end()
 " General settings.
 " -----------------------------------------------------------------------------
 
-filetype plugin indent on
 set encoding=utf-8
 
 " Tabs to spaces.
@@ -86,11 +85,11 @@ if has("termguicolors")
     set termguicolors
 endif
 
-" Highlight 80 character line.
-set colorcolumn=80
+" Highlight 88 character line.
+set colorcolumn=88
 
 " Always use system clipboard.
-set clipboard=unnamedplus
+set clipboard^=unnamed,unnamedplus
 
 " -----------------------------------------------------------------------------
 " Mappings.
