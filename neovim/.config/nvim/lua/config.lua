@@ -1,6 +1,14 @@
+-- -----------------------------------------------------------------------------
+-- Plugin setup in Lua.
+--
+-- This file is sourced by `init.vim`.
+-- -----------------------------------------------------------------------------
 
+-- -----------------------------------------------------------------------------
 -- Setup nvim-cmp.
-local cmp = require'cmp'
+-- -----------------------------------------------------------------------------
+
+local cmp = require('cmp')
 cmp.setup({
   snippet = {
     expand = function(args)
@@ -12,11 +20,11 @@ cmp.setup({
     -- documentation = cmp.config.window.bordered(),
   },
   mapping = cmp.mapping.preset.insert({
-    ['<C-b>'] = cmp.mapping.scroll_docs(-4),
-    ['<C-f>'] = cmp.mapping.scroll_docs(4),
-    ['<C-Space>'] = cmp.mapping.complete(),
-    ['<C-e>'] = cmp.mapping.abort(),
-    ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+    ['<c-b>'] = cmp.mapping.scroll_docs(-4),
+    ['<c-f>'] = cmp.mapping.scroll_docs(4),
+    ['<c-space>'] = cmp.mapping.complete(),
+    ['<c-e>'] = cmp.mapping.abort(),
+    ['<cr>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
   }),
   sources = cmp.config.sources({
     { name = 'nvim_lsp' },
@@ -26,11 +34,28 @@ cmp.setup({
   })
 })
 
+-- -----------------------------------------------------------------------------
 -- Setup language servers.
-local lspconfig = require('lspconfig')
-lspconfig.pyright.setup {}
+-- -----------------------------------------------------------------------------
 
--- Global mappings (see `:help vim.diagnostic.*`).
+require('lspconfig').pyright.setup{}
+
+-- Suppress virtual text (floating diagnostics). Diagnostics can be shown using
+-- the key mappings below.
+local function setup_diags()
+  vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
+    vim.lsp.diagnostic.on_publish_diagnostics,
+    {
+      virtual_text = false,
+      signs = true,
+      update_in_insert = false,
+      underline = true,
+    }
+  )
+end
+setup_diags()
+
+-- Mappings for diagnostics (see `:help vim.diagnostic.*`).
 vim.keymap.set('n', '<space>e', vim.diagnostic.open_float)
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next)
@@ -47,7 +72,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
     vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
     vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
     vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
-    vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
+    vim.keymap.set('n', '<space>k', vim.lsp.buf.signature_help, opts)
     vim.keymap.set('n', '<space>wa', vim.lsp.buf.add_workspace_folder, opts)
     vim.keymap.set('n', '<space>wr', vim.lsp.buf.remove_workspace_folder, opts)
     vim.keymap.set('n', '<space>wl', function()
@@ -63,42 +88,56 @@ vim.api.nvim_create_autocmd('LspAttach', {
   end,
 })
 
+-- -----------------------------------------------------------------------------
+-- Setup treesitter.
+-- -----------------------------------------------------------------------------
+
 require('nvim-treesitter.configs').setup {
   ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "python" },
-
     -- Install parsers synchronously (only applied to `ensure_installed`).
   sync_install = false,
-
   -- Automatically install missing parsers when entering buffer. Set to
   -- `false` if `tree-sitter` CLI is not installed locally.
   auto_install = true,
-
-  highlight = {
-  enable = true,
-  },
+  highlight = { enable = true },
 }
 
--- Setup status line
+-- -----------------------------------------------------------------------------
+-- Setup status line.
+-- -----------------------------------------------------------------------------
+
 require("lualine").setup()
 
--- Setup file tree
+-- -----------------------------------------------------------------------------
+-- Setup file tree.
+-- -----------------------------------------------------------------------------
+
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 require("nvim-tree").setup({
-    git = {
-        ignore = false
-    },
-    renderer = {
-      group_empty = true,
-    }
+    git = { ignore = false },
+    renderer = { group_empty = true }
 })
+vim.keymap.set('n', 'ft', ':NvimTreeToggle<cr>')
 
--- Setup telescope
-require("telescope").setup()
+-- -----------------------------------------------------------------------------
+-- Setup telescope.
+-- -----------------------------------------------------------------------------
 
--- Setup indentation highlights
+require("telescope").setup{
+  pickers = {
+    find_files = { hidden = true },
+    live_grep = { additional_args = {"--hidden"} },
+  },
+}
+local builtin = require('telescope.builtin')
+vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = 'Telescope find files' })
+vim.keymap.set('n', '<leader>fg', builtin.live_grep, { desc = 'Telescope live grep' })
+vim.keymap.set('n', '<leader>fb', builtin.buffers, { desc = 'Telescope buffers' })
+vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = 'Telescope help tags' })
+
+-- -----------------------------------------------------------------------------
+-- Setup indentation highlights.
+-- -----------------------------------------------------------------------------
+
 require("ibl").setup()
-
--- Customize theme
-vim.cmd("colorscheme github_dark_high_contrast")
-
