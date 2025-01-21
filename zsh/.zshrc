@@ -51,8 +51,8 @@ precmd() { vcs_info }
 zstyle ':vcs_info:git:*' formats '%b '
 
 setopt PROMPT_SUBST         # Allows command substitution in prompt.
-PROMPT='%F{blue}%~%f %F{red}${vcs_info_msg_0_}%f%F{magenta}>%f '
-RPROMPT='%F{blue}%D{%a %b %d}%f %F{green}%D{%I:%M:%S %p}%f'
+PROMPT='%F{blue}%~%f %F{red}${vcs_info_msg_0_}%f%F{green}>%f '
+RPROMPT='%n@%m %F{blue}%*%f'
 
 # -----------------------------------------------------------------------------
 # Completion.
