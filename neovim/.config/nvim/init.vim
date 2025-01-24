@@ -21,9 +21,10 @@ Plug 'neovim/nvim-lspconfig'                    " LSP client.
 " Treesitter.
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 
-" Telescope fuzzy search.
+" Telescope.
 Plug 'nvim-lua/plenary.nvim'                    " Dependency for telescope.
 Plug 'nvim-telescope/telescope.nvim' , { 'tag': '0.1.8' }
+Plug 'nvim-telescope/telescope-file-browser.nvim'
 
 " Code completion.
 Plug 'hrsh7th/cmp-nvim-lsp'
@@ -36,12 +37,12 @@ Plug 'hrsh7th/nvim-cmp'
 Plug 'hrsh7th/cmp-vsnip'
 Plug 'hrsh7th/vim-vsnip'
 
+" Other plugins.
 Plug 'christoomey/vim-tmux-navigator'           " Navigate between vim and tmux panes.
 Plug 'lukas-reineke/indent-blankline.nvim'      " Indentation lines.
 Plug 'tpope/vim-commentary'                     " Commenting.
 Plug 'tpope/vim-fugitive'                       " Vim git wrapper.
 Plug 'airblade/vim-gitgutter'	     	        " Git diff in gutter.
-Plug 'nvim-tree/nvim-tree.lua'                  " File tree.
 Plug 'EdenEast/nightfox.nvim'                   " Color scheme.
 Plug 'nvim-lualine/lualine.nvim'                " Statusline.
 Plug 'kyazdani42/nvim-web-devicons'             " Icons for lualine and nvim-tree.

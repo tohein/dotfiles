@@ -38,7 +38,21 @@ cmp.setup({
 -- Setup language servers.
 -- -----------------------------------------------------------------------------
 
-require('lspconfig').pyright.setup{}
+require('lspconfig').pyright.setup{
+  settings = {
+    pyright = {
+      -- Using Ruff's import organizer.
+      disableOrganizeImports = true,
+    },
+    python = {
+      analysis = {
+        -- Ignore all files for analysis to exclusively use Ruff for linting.
+        ignore = { '*' },
+      },
+    },
+  },
+}
+require('lspconfig').ruff.setup{}
 
 -- Suppress virtual text (floating diagnostics). Diagnostics can be shown using
 -- the key mappings below.
@@ -61,7 +75,7 @@ vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next)
 vim.keymap.set('n', '<space>q', vim.diagnostic.setloclist)
 
--- Use LspAttach autocommand to only map the following keys after the
+-- Use `LspAttach` autocommand to only map the following keys after the
 -- language server attaches to the current buffer.
 vim.api.nvim_create_autocmd('LspAttach', {
   group = vim.api.nvim_create_augroup('UserLspConfig', {}),
@@ -85,7 +99,14 @@ vim.api.nvim_create_autocmd('LspAttach', {
     vim.keymap.set('n', '<space>f', function()
       vim.lsp.buf.format { async = true }
     end, opts)
+
+     -- Disable hover for Ruff in favor of Pyright
+    local client = vim.lsp.get_client_by_id(ev.data.client_id)
+    if client and client.name == 'ruff' then
+      client.server_capabilities.hoverProvider = false
+    end
   end,
+  desc = 'LSP: Set keymaps and disable hover for Ruff',
 })
 
 -- -----------------------------------------------------------------------------
@@ -103,24 +124,6 @@ require('nvim-treesitter.configs').setup {
 }
 
 -- -----------------------------------------------------------------------------
--- Setup status line.
--- -----------------------------------------------------------------------------
-
-require("lualine").setup()
-
--- -----------------------------------------------------------------------------
--- Setup file tree.
--- -----------------------------------------------------------------------------
-
-vim.g.loaded_netrw = 1
-vim.g.loaded_netrwPlugin = 1
-require("nvim-tree").setup({
-    git = { ignore = false },
-    renderer = { group_empty = true }
-})
-vim.keymap.set('n', 'ft', ':NvimTreeToggle<cr>')
-
--- -----------------------------------------------------------------------------
 -- Setup telescope.
 -- -----------------------------------------------------------------------------
 
@@ -129,15 +132,25 @@ require("telescope").setup{
     find_files = { hidden = true },
     live_grep = { additional_args = {"--hidden"} },
   },
+  extensions = {
+    file_browser = {
+      -- Disables netrw and use telescope-file-browser in its place.
+      hijack_netrw = true
+    },
+  },
 }
+require("telescope").load_extension("file_browser")
+
 local builtin = require('telescope.builtin')
 vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = 'Telescope find files' })
 vim.keymap.set('n', '<leader>fg', builtin.live_grep, { desc = 'Telescope live grep' })
 vim.keymap.set('n', '<leader>fb', builtin.buffers, { desc = 'Telescope buffers' })
 vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = 'Telescope help tags' })
+vim.keymap.set("n", "<leader>ft", ":Telescope file_browser<CR>")
 
 -- -----------------------------------------------------------------------------
--- Setup indentation highlights.
+-- Other plugins.
 -- -----------------------------------------------------------------------------
 
-require("ibl").setup()
+require("ibl").setup()              -- Indentation based line highlights.
+require("lualine").setup()          -- Status line.
