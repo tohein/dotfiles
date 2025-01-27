@@ -16,13 +16,13 @@ endif
 
  call plug#begin()
 
-Plug 'neovim/nvim-lspconfig'                    " LSP client.
+Plug 'neovim/nvim-lspconfig'                " LSP client.
 
 " Treesitter.
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 
 " Telescope.
-Plug 'nvim-lua/plenary.nvim'                    " Dependency for telescope.
+Plug 'nvim-lua/plenary.nvim'                " Dependency for telescope.
 Plug 'nvim-telescope/telescope.nvim' , { 'tag': '0.1.8' }
 Plug 'nvim-telescope/telescope-file-browser.nvim'
 
@@ -38,15 +38,15 @@ Plug 'hrsh7th/cmp-vsnip'
 Plug 'hrsh7th/vim-vsnip'
 
 " Other plugins.
-Plug 'christoomey/vim-tmux-navigator'           " Navigate between vim and tmux panes.
-Plug 'lukas-reineke/indent-blankline.nvim'      " Indentation lines.
-Plug 'tpope/vim-commentary'                     " Commenting.
-Plug 'tpope/vim-fugitive'                       " Vim git wrapper.
-Plug 'airblade/vim-gitgutter'	     	        " Git diff in gutter.
-Plug 'EdenEast/nightfox.nvim'                   " Color scheme.
-Plug 'nvim-lualine/lualine.nvim'                " Statusline.
-Plug 'kyazdani42/nvim-web-devicons'             " Icons for lualine and nvim-tree.
-Plug 'github/copilot.vim'                       " GitHub Copilot.
+Plug 'christoomey/vim-tmux-navigator'       " Navigate between vim and tmux panes.
+Plug 'lukas-reineke/indent-blankline.nvim'  " Indentation lines.
+Plug 'tpope/vim-commentary'                 " Commenting.
+Plug 'tpope/vim-fugitive'                   " Vim git wrapper.
+Plug 'airblade/vim-gitgutter'               " Git diff in gutter.
+Plug 'EdenEast/nightfox.nvim'               " Color scheme.
+Plug 'nvim-lualine/lualine.nvim'            " Statusline.
+Plug 'kyazdani42/nvim-web-devicons'         " Icons for lualine and nvim-tree.
+Plug 'github/copilot.vim'                   " GitHub Copilot.
 
 call plug#end()
 
@@ -56,11 +56,10 @@ call plug#end()
 
 set encoding=utf-8
 
-" Tabs to spaces.
-set tabstop=4
-set softtabstop=4
-set shiftwidth=4
-set expandtab
+set tabstop=4                               " A tab is displayed as 4 spaces.
+set shiftwidth=0                            " Sets (auto)indent spaces to `tabstop`.
+set expandtab                               " Insert spaces for tabs.
+autocmd FileType lua setlocal tabstop=2     " Indent lua files with 2 spaces.
 
 " Show line numbers (absolute at position and relative elsewhere).
 set number relativenumber
