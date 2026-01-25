@@ -38,6 +38,7 @@ setopt HIST_IGNORE_DUPS     # Ignores repeated commands.
 [ -r "$HOME/.config/shortcutrc" ] && source "$HOME/.config/shortcutrc"
 [ -r "$HOME/.config/aliasrc" ] && source "$HOME/.config/aliasrc"
 [ -r "$HOME/.ec2_envvars" ] && source "$HOME/.ec2_envvars"
+[ -r "$HOME/.cargo/env" ] && source "$HOME/.cargo/env"
 
 # -----------------------------------------------------------------------------
 # Prompt.
