@@ -460,8 +460,13 @@ require('lazy').setup({
 
   {
     'stevearc/aerial.nvim',
-    opts = {},
-    -- Optional dependencies
+    opts = {
+      attach_mode = "global",
+      layout = {
+        default_direction = "prefer_left",
+        placement = "edge",
+      },
+    },
     dependencies = {
       'nvim-treesitter/nvim-treesitter',
       'nvim-tree/nvim-web-devicons',
