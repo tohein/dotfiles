@@ -199,7 +199,7 @@ require('lazy').setup({
     lazy = false,
     priority = 1000,
     config = function()
-      vim.cmd.colorscheme('duskfox')
+      vim.cmd.colorscheme('carbonfox')
     end,
   },
 
@@ -226,28 +226,6 @@ require('lazy').setup({
       suggestion = { enabled = true, auto_trigger = true },
       panel = { enabled = false },
       filetypes = { markdown = true },
-    },
-  },
-  { -- Copilot chat.
-    'CopilotC-Nvim/CopilotChat.nvim',
-    dependencies = { { 'nvim-lua/plenary.nvim', branch = 'master' } },
-    build = 'make tiktoken',
-    opts = { mappings = { reset = { normal = '<C-r>', insert = '<C-r>' } } },
-    keys = {
-      { '<leader>ac', '<Cmd>CopilotChatToggle<CR>', desc = 'Open Copilot Chat' },
-      {
-        '<leader>aa',
-        function()
-          vim.ui.input({
-            prompt = 'Quick Chat: ',
-          }, function(input)
-            if input ~= '' then
-              require('CopilotChat').ask(input)
-            end
-          end)
-        end,
-        desc = 'Quick Copilot Chat',
-      },
     },
   },
 
