@@ -66,6 +66,10 @@ vim.o.scrolloff = 10
 -- (like `:q`), instead raise a dialog asking if you wish to save the current file(s).
 vim.o.confirm = true
 
+-- Search settings.
+vim.o.smartcase = true -- Case-insensitive search unless uppercase letters are used.
+vim.o.ignorecase = true -- Case-insensitive search.
+
 -- -------------------------------------------------------------------------------------
 -- Set up keymaps.
 --  See `:h vim.keymap.set()`, `:h mapping`, `:h keycodes`.
@@ -112,7 +116,7 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 vim.api.nvim_create_autocmd('FileType', {
   pattern = '*',
   callback = function()
-    vim.opt_local.formatoptions:remove({ 'c', 'r', 'o' })
+    vim.opt_local.formatoptions:remove({ 'r', 'o' })
   end,
 })
 
@@ -132,6 +136,30 @@ vim.api.nvim_create_autocmd('FileType', {
   pattern = 'lua',
   callback = function()
     vim.bo.tabstop = 2
+  end,
+})
+
+-- -------------------------------------------------------------------------------------
+-- UI settings.
+-- -------------------------------------------------------------------------------------
+
+-- Use rounded borders for all floating windows.
+vim.o.winborder = 'rounded'
+
+-- Set highlights for floating windows and completion menu when colorscheme changes.
+vim.api.nvim_create_autocmd('ColorScheme', {
+  callback = function()
+    -- LSP float.
+    vim.api.nvim_set_hl(0, 'NormalFloat', { link = 'Normal' })
+    vim.api.nvim_set_hl(0, 'FloatBorder', { link = 'Normal' })
+
+    -- Completion menu.
+    vim.api.nvim_set_hl(0, 'CmpNormal', { link = 'NormalFloat' })
+    vim.api.nvim_set_hl(0, 'CmpBorder', { link = 'FloatBorder' })
+
+    -- Fallback (themes that use Pmenu).
+    vim.api.nvim_set_hl(0, 'Pmenu', { link = 'Normal' })
+    vim.api.nvim_set_hl(0, 'PmenuSel', { link = 'Visual' })
   end,
 })
 
@@ -171,7 +199,7 @@ require('lazy').setup({
     lazy = false,
     priority = 1000,
     config = function()
-      vim.cmd.colorscheme('duskfox')
+      vim.cmd.colorscheme('carbonfox')
     end,
   },
 
@@ -200,33 +228,22 @@ require('lazy').setup({
       filetypes = { markdown = true },
     },
   },
-  { -- Copilot chat.
-    'CopilotC-Nvim/CopilotChat.nvim',
-    dependencies = { { 'nvim-lua/plenary.nvim', branch = 'master' } },
-    build = 'make tiktoken',
-    opts = { mappings = { reset = { normal = '<C-r>', insert = '<C-r>' } } },
-    keys = {
-      { '<leader>ac', '<Cmd>CopilotChatToggle<CR>', desc = 'Open Copilot Chat' },
-      {
-        '<leader>aa',
-        function()
-          vim.ui.input({
-            prompt = 'Quick Chat: ',
-          }, function(input)
-            if input ~= '' then
-              require('CopilotChat').ask(input)
-            end
-          end)
-        end,
-        desc = 'Quick Copilot Chat',
-      },
-    },
-  },
 
   -- Git plugins.
   { -- Git signs, hunks, etc.
     'lewis6991/gitsigns.nvim',
-    opts = { signs = { add = { text = '+' } } },
+    opts = {
+      signs = { add = { text = '+' } },
+      on_attach = function(buffer)
+        local gs = package.loaded.gitsigns
+
+        local function map(mode, l, r, desc)
+          vim.keymap.set(mode, l, r, { buffer = buffer, desc = desc, silent = true })
+        end
+        -- Keymaps.
+        map('n', '<leader>hs', gs.preview_hunk, 'Preview git hunk')
+      end,
+    },
   },
   'tpope/vim-fugitive',
 
@@ -282,6 +299,7 @@ require('lazy').setup({
         mode = mode or 'n'
         vim.keymap.set(mode, key, func, { desc = desc })
       end
+      map_telescope_key('<leader>fr', builtin.resume, 'Telescope resume')
       map_telescope_key('<leader>ff', builtin.find_files, 'Telescope find files')
       map_telescope_key('<leader>fg', builtin.live_grep, 'Telescope live grep')
       map_telescope_key('<leader>fh', builtin.help_tags, 'Telescope help tags')
@@ -293,6 +311,12 @@ require('lazy').setup({
         extensions.file_browser.file_browser,
         'Telescope file browser'
       )
+      map_telescope_key('<leader>ftb', function()
+        require('telescope').extensions.file_browser.file_browser({
+          path = vim.fn.expand('%:p:h'),
+          select_buffer = true,
+        })
+      end, 'Telescope file browser (current buffer dir)')
       map_telescope_key('<leader>fb', function()
         builtin.buffers(telescope_dropdown)
       end, 'Telescope buffers')
@@ -405,10 +429,29 @@ require('lazy').setup({
       --  See :help vim.diagnostic.Opts.
       vim.diagnostic.config({
         severity_sort = true,
-        float = { border = 'rounded', source = 'if_many' },
+        -- float = { border = 'rounded', source = 'if_many' },
+        float = { source = 'if_many' },
         underline = true,
       })
     end,
+  },
+
+  {
+    'stevearc/aerial.nvim',
+    opts = {
+      attach_mode = "global",
+      layout = {
+        default_direction = "prefer_left",
+        placement = "edge",
+      },
+    },
+    dependencies = {
+      'nvim-treesitter/nvim-treesitter',
+      'nvim-tree/nvim-web-devicons',
+    },
+    keys = {
+      { '<leader>at', '<Cmd>AerialToggle!<CR>', desc = 'Toggle Aerial outline' },
+    },
   },
 
   { -- Treesitter parser for code highlighting and navigation.
